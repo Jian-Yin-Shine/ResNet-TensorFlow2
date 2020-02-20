@@ -31,25 +31,16 @@ class ResNetTypeI(tf.keras.Model):
         self.fc = tf.keras.layers.Dense(units=NUM_CLASSES, activation=tf.keras.activations.softmax)
 
     def call(self, inputs, training=None, mask=None):
-        tf.print(inputs.shape)
         x = self.conv1(inputs)
         x = self.bn1(x, training=training)
         x = tf.nn.relu(x)
-        tf.print(x.shape)
         x = self.pool1(x)
-        tf.print(x.shape)
         x = self.layer1(x, training=training)
-        tf.print(x.shape)
         x = self.layer2(x, training=training)
-        tf.print(x.shape)
         x = self.layer3(x, training=training)
-        tf.print(x.shape)
         x = self.layer4(x, training=training)
-        tf.print(x.shape)
         x = self.avgpool(x)
-        tf.print(x.shape)
         output = self.fc(x)
-        tf.print(output.shape)
 
         return output
 
@@ -86,9 +77,7 @@ class ResNetTypeII(tf.keras.Model):
         x = tf.nn.relu(x)
         x = self.pool1(x)
         x = self.layer1(x, training=training)
-        tf.print(x.shape)
         x = self.layer2(x, training=training)
-        tf.print(x.shape)
         x = self.layer3(x, training=training)
         x = self.layer4(x, training=training)
         x = self.avgpool(x)
@@ -118,9 +107,20 @@ def resnet_152():
 
 
 if __name__ == '__main__':
-    net = resnet_34()
-    # tf.keras.utils.plot_model(resnet18, 'model_info.png', expand_nested=True, show_shapes=True)
+    net = resnet_18()
+    net.build((None, 224, 224, 3))
+    net.summary()
 
-    img = tf.random.uniform((1, 224, 224, 3))
-    out = net(img)
-    # print(out.shape)
+    # imgs = tf.random.uniform(shape=(4, 224, 224, 3))
+    imgs = tf.ones(shape=(4, 224, 224, 3))
+    # labs = tf.random.uniform(shape=(4, 1))
+
+    net.compile(optimizer=tf.keras.optimizers.RMSprop(0.001),
+                loss=tf.keras.losses.categorical_crossentropy,
+                metrics=['accuracy'])
+
+    # net.fit(imgs, labs, batch_size=4, epochs=5)
+    # net.save_weights('ResNet18.h5', save_format='h5')
+    net.load_weights('ResNet18.h5')
+    out = net(imgs)
+    print(out)
